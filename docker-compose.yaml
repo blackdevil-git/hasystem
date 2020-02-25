@@ -2,12 +2,9 @@ version: "3.7"
 
 services:
   node-red:
-    container_name: "NodeRed"
     image: nodered/node-red:latest
-    environment:
-      - TZ=America/Sao_Paulo
-      #- PGID=1000
-      #- PUID=1000
+    container_name: "NodeRed"
+    restart: always
     user: "root:root"
     ports:
       - "1880:1880"
@@ -15,16 +12,21 @@ services:
       - home-system-net
     volumes:
       - home-system-data:/data
-  hass:
-    container_name: "HomeAssistant"
-    network_mode: host
-    image: homeassistant/raspberrypi3-homeassistant:stable
     environment:
       - TZ=America/Sao_Paulo
+      #- PGID=1000
+      #- PUID=1000
+  hass:
+    image: homeassistant/raspberrypi3-homeassistant:stable
+    container_name: "HomeAssistant"
+    restart: always
+    network_mode: host
     ports:
       - "8123:8123"
     volumes:
       - home-system-data:/config
+    environment:
+      - TZ=America/Sao_Paulo
   mqtt:
     image: eclipse-mosquitto:latest
     container_name: "mqtt"
