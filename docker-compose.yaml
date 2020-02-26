@@ -2,15 +2,17 @@ version: "3.7"
 
 services:
 
-  nginx-proxy:
+  traefik:
 
-    image: jwilder/nginx-proxy
+    image: "traefik:2.0"
 
-    restart: always
+    command:
 
-    networks:
+      - "--providers.docker=true"
 
-      - proxy
+      - "--providers.docker.exposedbydefault=false"
+
+      - "--entrypoints.web.address=:80"
 
     ports:
 
@@ -18,9 +20,7 @@ services:
 
     volumes:
 
-      - "/var/run/docker.sock:/tmp/docker.sock:ro"
-
-      - "./vhost.d:/etc/nginx/vhost.d:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
   portainer:
 
@@ -28,19 +28,25 @@ services:
 
     restart: always
 
-    environment:
-
-      - VIRTUAL_HOST=dev.portainer
-
-    networks:
-
-      - proxy
-
     volumes:
 
       - /var/run/docker.sock:/var/run/docker.sock
 
       - portainer_data:/data
+
+    labels:
+
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.portainer.rule=Host(`dev.portainer`)"
+
+      - "traefik.http.routers.portainer.entrypoints=web"
+
+      # Uncomment this label if your Traefik instance is using a specific Docker network and replace the network name 
+
+      # This is not necessary if you set your default network in Traefik config/parameters
+
+      # - "traefik.docker.network=your-traefik-network-name"
   
 
   node-red:
