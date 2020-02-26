@@ -2,8 +2,6 @@ version: "3.7"
 
 services:
 
-  
-
   portainer:
 
     image: portainer/portainer
@@ -43,7 +41,7 @@ services:
 
     volumes:
 
-      - home-system-data:/data
+      - home-system-data:/nodered/data
 
     environment:
 
@@ -67,7 +65,7 @@ services:
 
     volumes:
 
-      - home-system-data:/config
+      - home-system-data:/homeassistant/config
 
     environment:
 
