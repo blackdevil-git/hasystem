@@ -1,49 +1,134 @@
 version: "3.7"
 
 services:
-  node-red:
-    image: nodered/node-red:latest
-    container_name: "NodeRed"
+
+  nginx-proxy:
+
+    image: jwilder/nginx-proxy
+
     restart: always
-    user: "root:root"
-    ports:
-      - "1880:1880"
+
     networks:
-      - home-system-net
+
+      - proxy
+
+    ports:
+
+      - "80:80"
+
     volumes:
-      - home-system-data:/data
+
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+
+      - "./vhost.d:/etc/nginx/vhost.d:ro"
+
+  portainer:
+
+    image: portainer/portainer
+
+    restart: always
+
     environment:
+
+      - VIRTUAL_HOST=dev.portainer
+
+    networks:
+
+      - proxy
+
+    volumes:
+
+      - /var/run/docker.sock:/var/run/docker.sock
+
+      - portainer_data:/data
+  
+
+  node-red:
+
+    image: nodered/node-red:latest
+
+    container_name: "NodeRed"
+
+    restart: always
+
+    user: "root:root"
+
+    ports:
+
+      - "1880:1880"
+
+    networks:
+
+      - home-system-net
+
+    volumes:
+
+      - home-system-data:/data
+
+    environment:
+
       - TZ=America/Sao_Paulo
       #- PGID=1000
       #- PUID=1000
+
   hass:
+
     image: homeassistant/raspberrypi3-homeassistant:stable
+
     container_name: "HomeAssistant"
+
     restart: always
+
     network_mode: host
+
     ports:
+
       - "8123:8123"
+
     volumes:
+
       - home-system-data:/config
+
     environment:
+
       - TZ=America/Sao_Paulo
+
   mqtt:
+
     image: eclipse-mosquitto:latest
+
     container_name: "mqtt"
+
     restart: always
+
     network_mode: host
+
     ports:
+
       - 1883:1883
+
       - 9001:9001
+
     volumes:
+
       - home-system-data:/mosquitto/data
+
       #- home-system-data:/mosquitto/config
+
       - home-system-data:/mosquitto/log
+
     environment:
+
       - TZ=America/Sao_Paulo
   
 volumes:
+
   home-system-data:
 
+  portainer_data:
+
 networks:
+
   home-system-net:
+
+  proxy:
